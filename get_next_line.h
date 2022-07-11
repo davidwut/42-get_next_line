@@ -6,15 +6,12 @@
 /*   By: dwuthric <dwuthric@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 16:03:40 by dwuthric          #+#    #+#             */
-/*   Updated: 2022/07/11 17:50:25 by dwuthric         ###   ########.fr       */
+/*   Updated: 2022/07/11 19:40:40 by dwuthric         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-
-# include <stdio.h>
-# include <fcntl.h>
 
 # include <stdlib.h>
 # include <unistd.h>
