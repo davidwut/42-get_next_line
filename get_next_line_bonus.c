@@ -6,11 +6,11 @@
 /*   By: dwuthric <dwuthric@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 20:18:42 by dwuthric          #+#    #+#             */
-/*   Updated: 2022/07/11 20:19:18 by dwuthric         ###   ########.fr       */
+/*   Updated: 2022/07/11 20:50:30 by dwuthric         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 static void	append_str(char **dest, char src[BUFFER_SIZE], int size)
 {
@@ -84,8 +84,16 @@ int	get_next_line(int fd, char **line)
 		append_str(&buffer[fd], temp, size);
 	}
 	free_null(line);
-	*line = pop_str(&buffer[fd]);
-	if (buffer[fd][0] == 0)
+	if (!buffer[fd])
+	{
+		free_null(&buffer[fd]);
+		return (ERR);
+	}
+	if (size == 0)
+	{
+		free_null(&buffer[fd]);
 		return (EOF_RCHD);
+	}
+	*line = pop_str(&buffer[fd]);
 	return (LINE_RD);
 }
