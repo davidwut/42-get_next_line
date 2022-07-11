@@ -6,7 +6,7 @@
 /*   By: dwuthric <dwuthric@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/09 16:03:04 by dwuthric          #+#    #+#             */
-/*   Updated: 2022/07/11 18:44:12 by dwuthric         ###   ########.fr       */
+/*   Updated: 2022/07/11 20:16:06 by dwuthric         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ int	get_next_line(int fd, char **line)
 	}
 	free_null(line);
 	*line = pop_str(&buffer[fd]);
-	if (size != BUFFER_SIZE)
+	if (buffer[fd][0] == 0)
 		return (EOF_RCHD);
 	return (LINE_RD);
 }

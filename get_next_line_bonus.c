@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dwuthric <dwuthric@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/09 16:03:04 by dwuthric          #+#    #+#             */
-/*   Updated: 2022/07/11 18:44:12 by dwuthric         ###   ########.fr       */
+/*   Created: 2022/07/11 20:18:42 by dwuthric          #+#    #+#             */
+/*   Updated: 2022/07/11 20:19:18 by dwuthric         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ int	get_next_line(int fd, char **line)
 	}
 	free_null(line);
 	*line = pop_str(&buffer[fd]);
-	if (size != BUFFER_SIZE)
+	if (buffer[fd][0] == 0)
 		return (EOF_RCHD);
 	return (LINE_RD);
 }
