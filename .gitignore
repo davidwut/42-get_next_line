@@ -5,3 +5,4 @@
 .DS_STORE
 *dSYM*
 *.txt
+main.c
