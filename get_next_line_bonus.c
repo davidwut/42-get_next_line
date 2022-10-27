@@ -3,97 +3,71 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dwuthric <dwuthric@student.42.fr>          +#+  +:+       +#+        */
+/*   By: dwuthric <dwuthric@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/11 20:18:42 by dwuthric          #+#    #+#             */
-/*   Updated: 2022/07/11 20:50:30 by dwuthric         ###   ########.fr       */
+/*   Created: 2022/10/26 10:53:40 by dwuthric          #+#    #+#             */
+/*   Updated: 2022/10/27 00:00:57 by dwuthric         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-
-static void	append_str(char **dest, char src[BUFFER_SIZE], int size)
+#include <stdio.h>
+char	*pop_str(char **memory)
 {
-	char	*res;
-	int		dest_len;
+	char	*str;
+	char	*tmp;
 	int		i;
 
-	dest_len = ft_strlen(*dest);
-	res = malloc(dest_len + size + 1);
-	if (!res)
-		return ;
-	i = -1;
-	while (++i < dest_len)
-		res[i] = dest[0][i];
-	i = -1;
-	while (++i < size)
-		res[i + dest_len] = src[i];
-	res[i + dest_len] = 0;
-	free_null(dest);
-	*dest = res;
-}
-
-static void	slice_str(char **str, int from, int len)
-{
-	char	*res;
-	int		i;
-
-	res = malloc(len - from);
-	if (!res)
-		return ;
-	i = -1;
-	while (++i < len - from - 1)
-		res[i] = str[0][i + from + 1];
-	res[i] = 0;
-	free(*str);
-	*str = res;
-}
-
-static char	*pop_str(char **buf)
-{
-	char	*res;
-	int		buf_len;
-	int		index;
-	int		i;
-
-	buf_len = ft_strlen(buf[0]);
-	index = next_nl(buf[0], M_NULLBYTE);
-	res = malloc(index + 1);
-	if (!res)
+	i = 0;
+	printf("mem %d= [%s]\n", ft_strlen(*memory), *memory);
+	printf("### %c\n", (*memory)[6]);
+	while (*memory[i] && *memory[i] != '\n')
+	{
+		printf("i = %d\n", i);
+		i++;
+	}
+	printf("PLEASE -%d\n", *memory[i] == '\n');
+	str = malloc(i + 1 + *memory[i] == '\n');
+	if (!str)
 		return (NULL);
-	i = -1;
-	while (++i < index)
-		res[i] = buf[0][i];
-	res[i] = 0;
-	slice_str(&buf[0], index, buf_len);
-	return (res);
+	ft_strlcpy(str, *memory, i + 1 + *memory[i] == '\n');
+	if (*memory[i] == '\n')
+	{
+		tmp = *memory;
+		*memory = ft_strdup(*memory + i + 1);
+		free(tmp);
+	}
+	else
+	{
+		free(*memory);
+		*memory = NULL;
+	}
+	return (str);
 }
 
-int	get_next_line(int fd, char **line)
+char	*get_next_line(int fd)
 {
-	static char	*buffer[OPEN_MAX];
-	char		temp[BUFFER_SIZE];
-	int			size;
+	static char	*memory[OPEN_MAX];
+	char		buffer[BUFFER_SIZE + 1];
+	char		*tmp;
+	int			bytes_read;
 
-	if (fd < 0)
-		return (ERR);
-	size = BUFFER_SIZE;
-	while (size == BUFFER_SIZE && next_nl(buffer[fd], M_NEWLINE) == -1)
+	if (fd < 0 || fd > OPEN_MAX || BUFFER_SIZE <= 0)
+		return (NULL);
+	if (!memory[fd])
+		memory[fd] = ft_strdup("");
+	if (ft_strchr(memory[fd], '\n') != NULL)
+		return (pop_str(&memory[fd]));
+	bytes_read = BUFFER_SIZE;
+	while (bytes_read == BUFFER_SIZE && ft_strchr(memory[fd], '\n') == NULL)
 	{
-		size = read(fd, temp, BUFFER_SIZE);
-		append_str(&buffer[fd], temp, size);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read == -1)
+			return (NULL);
+		buffer[bytes_read] = 0;
+		tmp = ft_strjoin(memory[fd], buffer);
+		free(memory[fd]);
+		memory[fd] = tmp;
 	}
-	free_null(line);
-	if (!buffer[fd])
-	{
-		free_null(&buffer[fd]);
-		return (ERR);
-	}
-	if (size == 0)
-	{
-		free_null(&buffer[fd]);
-		return (EOF_RCHD);
-	}
-	*line = pop_str(&buffer[fd]);
-	return (LINE_RD);
+	return (pop_str(&memory[fd]));
 }
