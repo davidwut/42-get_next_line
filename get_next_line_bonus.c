@@ -6,68 +6,80 @@
 /*   By: dwuthric <dwuthric@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/26 10:53:40 by dwuthric          #+#    #+#             */
-/*   Updated: 2022/10/27 00:00:57 by dwuthric         ###   ########.fr       */
+/*   Updated: 2022/10/28 20:34:02 by dwuthric         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
-#include <stdio.h>
-char	*pop_str(char **memory)
-{
-	char	*str;
-	char	*tmp;
-	int		i;
 
-	i = 0;
-	printf("mem %d= [%s]\n", ft_strlen(*memory), *memory);
-	printf("### %c\n", (*memory)[6]);
-	while (*memory[i] && *memory[i] != '\n')
+void	free_null(char **ptr)
+{
+	if (*ptr)
 	{
-		printf("i = %d\n", i);
-		i++;
+		free(*ptr);
+		*ptr = NULL;
 	}
-	printf("PLEASE -%d\n", *memory[i] == '\n');
-	str = malloc(i + 1 + *memory[i] == '\n');
-	if (!str)
-		return (NULL);
-	ft_strlcpy(str, *memory, i + 1 + *memory[i] == '\n');
-	if (*memory[i] == '\n')
+}
+
+char	*strslice(char **memory, int idx)
+{
+	char	*res;
+	char	*tmp;
+
+	if (idx <= 0)
 	{
-		tmp = *memory;
-		*memory = ft_strdup(*memory + i + 1);
-		free(tmp);
-	}
-	else
-	{
-		free(*memory);
+		if (**memory == 0)
+		{
+			free_null(memory);
+			return (NULL);
+		}
+		res = *memory;
 		*memory = NULL;
+		return (res);
 	}
-	return (str);
+	tmp = ft_substr(*memory, idx, BUFFER_SIZE);
+	res = *memory;
+	res[idx] = 0;
+	*memory = tmp;
+	return (res);
+}
+
+char	*read_line(int fd, char **memory)
+{
+	char	*buffer;
+	char	*tmp;
+	int		bytes_read;
+
+	bytes_read = 0;
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	while (ft_strchr(*memory, '\n') == NULL)
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read <= 0)
+		{
+			free(buffer);
+			return (strslice(memory, bytes_read));
+		}
+		buffer[bytes_read] = 0;
+		tmp = ft_strjoin(*memory, buffer);
+		free(*memory);
+		*memory = tmp;
+	}
+	free(buffer);
+	return (strslice(memory, ft_strchr(*memory, '\n') - *memory + 1));
 }
 
 char	*get_next_line(int fd)
 {
 	static char	*memory[OPEN_MAX];
-	char		buffer[BUFFER_SIZE + 1];
-	char		*tmp;
-	int			bytes_read;
+	char		*line;
 
-	if (fd < 0 || fd > OPEN_MAX || BUFFER_SIZE <= 0)
+	if (fd < 0 || fd >= OPEN_MAX || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (!memory[fd])
 		memory[fd] = ft_strdup("");
-	if (ft_strchr(memory[fd], '\n') != NULL)
-		return (pop_str(&memory[fd]));
-	bytes_read = BUFFER_SIZE;
-	while (bytes_read == BUFFER_SIZE && ft_strchr(memory[fd], '\n') == NULL)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1)
-			return (NULL);
-		buffer[bytes_read] = 0;
-		tmp = ft_strjoin(memory[fd], buffer);
-		free(memory[fd]);
-		memory[fd] = tmp;
-	}
-	return (pop_str(&memory[fd]));
+	line = read_line(fd, &memory[fd]);
+	return (line);
 }
